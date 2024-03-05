@@ -51,6 +51,7 @@ make
 8. client, server 각각 실행
 
 - server쪽 로그
+
 ![image](https://github.com/GwangIl-Park/openssl_playground/assets/40749130/df099394-1187-4d72-8dcd-472763b19b44)
 
 - client쪽 로그
