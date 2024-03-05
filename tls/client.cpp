@@ -7,21 +7,25 @@
 
 #define BUFFER_SIZE 1024
 
-void logErrorAndExit() {
-    ERR_print_errors_fp(stderr);
-    exit(-1);
-}
-
 int main() {
     OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL);
     SSL_CTX* ctx = SSL_CTX_new(TLS_client_method());
     if(!ctx) {
-        logErrorAndExit();
+        std::cerr << "SSL_CTX_new failed" << std::endl;
+        exit(-1);
+    }
+
+    int result;
+    result = SSL_CTX_load_verify_locations(ctx, "rootCA.crt", nullptr);
+    if(result != 1) {
+        std::cerr << "SSL_CTX_load_verify_locations failed" << std::endl;
+        exit(-1);
     }
 
     int clientFd = socket(AF_INET, SOCK_STREAM, 0);
     if(clientFd == -1) {
-        logErrorAndExit();
+        std::cerr << "create socket failed" << std::endl;
+        exit(-1);
     }
 
     struct sockaddr_in serverAddr;
@@ -29,20 +33,29 @@ int main() {
     serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
     serverAddr.sin_port = htons(8986);
 
-    int result = connect(clientFd, (sockaddr*)&serverAddr, sizeof(sockaddr_in));
+    result = connect(clientFd, (sockaddr*)&serverAddr, sizeof(sockaddr_in));
     if(result == -1) {
-        logErrorAndExit();
+        std::cerr << "connect failed" << std::endl;
+        exit(-1);
     }
 
     SSL* ssl = SSL_new(ctx);
     if(!ssl) {
-        logErrorAndExit();
+        std::cerr << "SSL_new failed" << std::endl;
+        exit(-1);
     }
     SSL_set_fd(ssl, clientFd);
 
     result = SSL_connect(ssl);
     if(result == -1) {
-        logErrorAndExit();
+        std::cerr << "SSL_connect failed" << std::endl;
+        exit(-1);
+    }
+
+    result = SSL_get_verify_result(ssl);
+    if(result != X509_V_OK) {
+        std::cerr << "SSL_get_verify_result failed : result = " << result << std::endl;
+        exit(-1);
     }
 
     const char* msg = "Hello\r\n";

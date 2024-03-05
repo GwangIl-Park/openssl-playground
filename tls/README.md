@@ -15,7 +15,7 @@ openssl req -new -key rootCA.key -out rootCA.csr
 3. rootCA용 인증서 생성
 
 ```jsx
-openssl x509 -req -in rootCA.csr -signkey rootCA.key -out rootCA.crt
+openssl x509 -req -in rootCA.csr -signkey rootCA.key -out rootCA.crt -fingerprint -sha256
 ```
 
 ![image](https://github.com/GwangIl-Park/openssl_playground/assets/40749130/1c0d5918-ad70-4d53-bbf2-6fab267d47f9)
@@ -37,7 +37,7 @@ openssl req -new -key server.key -out server.csr
 6. 서버용 인증서 생성
 
 ```jsx
-openssl x509 -req -in server.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out server.crt
+openssl x509 -req -in server.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out server.crt -fingerprint -sha256
 ```
 
 ![image](https://github.com/GwangIl-Park/openssl_playground/assets/40749130/44c9aa22-9983-4d5d-a886-7334bfbfb20f)

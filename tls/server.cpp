@@ -8,11 +8,6 @@
 
 #define BUFFER_SIZE 1024
 
-void logErrorAndExit() {
-    ERR_print_errors_fp(stderr);
-    exit(-1);
-}
-
 int main() {
     //SSL_library_init()
     // - in v1.1.0, SSL_library_init() and OpenSSL_add_ssl_algorithms() were deprecated in OPENSSL_init_ssl()
@@ -27,7 +22,8 @@ int main() {
     // create a new SSL_CTX object, which holds various configuration and data relevant to SSL/TLS or DTLS session establishment
     SSL_CTX* ctx = SSL_CTX_new(TLS_server_method());
     if(!ctx) {
-        logErrorAndExit();
+        std::cerr << "SSL_CTX_new failed" << std::endl;
+        exit(-1);
     }
 
     //set verification flag for ctx
@@ -37,22 +33,26 @@ int main() {
 
     int result = SSL_CTX_use_certificate_file(ctx, "server.crt", SSL_FILETYPE_PEM);
     if(result != 1) {
-        logErrorAndExit();
+        std::cerr << "SSL_CTX_use_certificate_file failed" << std::endl;
+        exit(-1);
     }
 
     result = SSL_CTX_use_PrivateKey_file(ctx, "server.key", SSL_FILETYPE_PEM);
     if(result != 1) {
-        logErrorAndExit();
+        std::cerr << "SSL_CTX_use_PrivateKey_file failed" << std::endl;
+        exit(-1);
     }
 
     result = SSL_CTX_check_private_key(ctx);
     if(result != 1) {
-        logErrorAndExit();
+        std::cerr << "SSL_CTX_check_private_key failed" << std::endl;
+        exit(-1);
     }
 
     int serverFd = socket(AF_INET, SOCK_STREAM, 0);
     if(serverFd == -1) {
-        logErrorAndExit();
+        std::cerr << "create socket failed" << std::endl;
+        exit(-1);
     }
 
     const int port = 8986;
@@ -64,12 +64,14 @@ int main() {
 
     result = bind(serverFd, (struct sockaddr*)&serverAddr, sizeof(sockaddr_in));
     if(result < 0) {
-        logErrorAndExit();
+        std::cerr << "bind failed" << std::endl;
+        exit(-1);
     }
 
     result = listen(serverFd, 5);
     if(result == -1) {
-        logErrorAndExit();
+        std::cerr << "listen failed" << std::endl;
+        exit(-1);
     }
 
     std::cout << "Server Start (port:" << port << ")" << std::endl;
@@ -79,18 +81,21 @@ int main() {
         int len = sizeof(sockaddr_in);
         int clientFd = accept(serverFd, (struct sockaddr*)&clientAddr, (socklen_t*)&len);
         if(clientFd == -1) {
-            logErrorAndExit();
+            std::cerr << "accept failed" << std::endl;
+        exit(-1);
         }
 
         //creates a new SSL structure which is needed to hold the data for a TLS/SSL connection
         SSL* ssl = SSL_new(ctx);
         if(!ssl) {
-            logErrorAndExit();
+            std::cerr << "SSL_new failed" << std::endl;
+        exit(-1);
         }
 
         result = SSL_set_fd(ssl, clientFd);
         if(result == 0) {
-            logErrorAndExit();
+            std::cerr << "SSL_set_fd failed" << std::endl;
+        exit(-1);
         }
 
         SSL_set_accept_state(ssl);
@@ -98,7 +103,8 @@ int main() {
         // tls handshake
         result = SSL_do_handshake((ssl));
         if(result <= 0) {
-            logErrorAndExit();
+            std::cerr << "SSL_do_handshake failed" << std::endl;
+        exit(-1);
         }
 
         char buffer[BUFFER_SIZE];
