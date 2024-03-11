@@ -31,13 +31,13 @@ int main() {
 
     //SSL_CTX_load_verify_locations
 
-    int result = SSL_CTX_use_certificate_file(ctx, "server.crt", SSL_FILETYPE_PEM);
+    int result = SSL_CTX_use_certificate_file(ctx, "test.crt", SSL_FILETYPE_PEM);
     if(result != 1) {
         std::cerr << "SSL_CTX_use_certificate_file failed" << std::endl;
         exit(-1);
     }
 
-    result = SSL_CTX_use_PrivateKey_file(ctx, "server.key", SSL_FILETYPE_PEM);
+    result = SSL_CTX_use_PrivateKey_file(ctx, "test.key", SSL_FILETYPE_PEM);
     if(result != 1) {
         std::cerr << "SSL_CTX_use_PrivateKey_file failed" << std::endl;
         exit(-1);

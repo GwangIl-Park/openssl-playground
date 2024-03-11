@@ -30,21 +30,9 @@ bool genRsa(unsigned int keyLength, const char* filePath) {
     BIO_write_filename(bio, (void*)filePath);
     PEM_write_bio_PrivateKey(bio, pkey, NULL, NULL, 0, NULL, NULL);
 
-    //BIO* privateBio = BIO_new(BIO_s_mem());
-    // // 출력된 키를 문자열로 가져오기
-    // BUF_MEM* privateBioMem;
-    // BIO_get_mem_ptr(privateBio, &privateBioMem);
-
-    // // 출력
-    // std::cout << "Generated RSA Private Key:" << std::endl;
-    // std::cout << privateBioMem->data << std::endl;
-    //BIO_write(privateBio, privateBioMem->data, privateBioMem->length)
-
-
     BIO_free(bio);
 
-#ifdef SIMPLE_VERSION
-#else
+#ifndef SIMPLE_VERSION
     EVP_PKEY_CTX_free(pctx);
 #endif
 
@@ -56,6 +44,6 @@ bool genRsa(unsigned int keyLength, const char* filePath) {
 
 int main() {
     unsigned int keyLength = 2048;
-	genRsa(keyLength, "rsakey.txt");
+	genRsa(keyLength, "test.key");
 	return 0;
 }

@@ -16,7 +16,7 @@ int main() {
     }
 
     int result;
-    result = SSL_CTX_load_verify_locations(ctx, "rootCA.crt", nullptr);
+    result = SSL_CTX_load_verify_locations(ctx, "root.crt", nullptr);
     if(result != 1) {
         std::cerr << "SSL_CTX_load_verify_locations failed" << std::endl;
         exit(-1);
