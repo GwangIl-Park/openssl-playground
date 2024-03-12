@@ -33,19 +33,19 @@ int main() {
 
     int result = SSL_CTX_use_certificate_file(ctx, "test.crt", SSL_FILETYPE_PEM);
     if(result != 1) {
-        std::cerr << "SSL_CTX_use_certificate_file failed" << std::endl;
+        std::cerr << "SSL_CTX_use_certificate_file failed : " << ERR_reason_error_string(ERR_get_error()) << std::endl;
         exit(-1);
     }
 
     result = SSL_CTX_use_PrivateKey_file(ctx, "test.key", SSL_FILETYPE_PEM);
     if(result != 1) {
-        std::cerr << "SSL_CTX_use_PrivateKey_file failed" << std::endl;
+        std::cerr << "SSL_CTX_use_PrivateKey_file failed : " << ERR_reason_error_string(ERR_get_error()) << std::endl;
         exit(-1);
     }
 
     result = SSL_CTX_check_private_key(ctx);
     if(result != 1) {
-        std::cerr << "SSL_CTX_check_private_key failed" << std::endl;
+        std::cerr << "SSL_CTX_check_private_key failed" << ERR_reason_error_string(ERR_get_error()) << std::endl;
         exit(-1);
     }
 

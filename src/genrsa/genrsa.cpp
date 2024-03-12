@@ -3,8 +3,6 @@
 #include <openssl/pem.h>
 #include <openssl/err.h>
 
-#include "genrsa.h"
-
 bool genRsa(unsigned int keyLength, const char* filePath) {
     // OpenSSL 초기화
     OPENSSL_init_crypto(0, NULL);

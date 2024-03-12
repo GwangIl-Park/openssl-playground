@@ -16,7 +16,7 @@ int main() {
     }
 
     int result;
-    result = SSL_CTX_load_verify_locations(ctx, "root.crt", nullptr);
+    result = SSL_CTX_load_verify_locations(ctx, "rootCA.crt", nullptr);
     if(result != 1) {
         std::cerr << "SSL_CTX_load_verify_locations failed" << std::endl;
         exit(-1);
@@ -54,9 +54,13 @@ int main() {
 
     result = SSL_get_verify_result(ssl);
     if(result != X509_V_OK) {
-        std::cerr << "SSL_get_verify_result failed : result = " << result << std::endl;
+        std::cerr << "SSL_get_verify_result failed : result = " << result << " reason : " << ERR_lib_error_string(ERR_get_error()) << std::endl;
         exit(-1);
     }
+
+    SSL_SESSION* session = SSL_get_session(ssl);
+    SSL_SESSION_print_fp(stdout, session);
+
 
     const char* msg = "Hello\r\n";
 

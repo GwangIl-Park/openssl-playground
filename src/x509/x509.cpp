@@ -16,12 +16,8 @@ int main() {
     BIO* bio = BIO_new(BIO_s_file());
 
     X509* rootCert = nullptr;
-    BIO_read_filename(bio, (void*)"root.crt");
+    BIO_read_filename(bio, (void*)"rootCA.crt");
     PEM_read_bio_X509(bio, &rootCert, NULL, NULL);
-
-    // EVP_PKEY* pkey = nullptr;
-    // BIO_read_filename(bio, (void*)"test.key");
-    // PEM_read_bio_PrivateKey(bio, &pkey, NULL, NULL);
 
     X509_REQ* req = nullptr;
     BIO_read_filename(bio, (void*)"test.csr");
@@ -35,51 +31,17 @@ int main() {
     EVP_PKEY* pkey = X509_REQ_get_pubkey(req);
     X509_set_pubkey(cert, pkey);
 
-        // 유효 기간 설정 (1년)
     X509_gmtime_adj(X509_get_notBefore(cert), 0);
     X509_gmtime_adj(X509_get_notAfter(cert), 31536000L);
 
     EVP_PKEY* rootKey = nullptr;
-    BIO_read_filename(bio, (void*)"root.key");
+    BIO_read_filename(bio, (void*)"rootCA.key");
     PEM_read_bio_PrivateKey(bio, &rootKey, NULL, NULL);
 
     X509_sign(cert, rootKey, EVP_sha256());
 
     BIO_write_filename(bio, (void*)"test.crt");
     PEM_write_bio_X509(bio, cert);
-
-    // // 개인 키 생성
-    // EVP_PKEY* private_key = EVP_PKEY_new();
-    // EC_KEY* ec_key = EC_KEY_new_by_curve_name(NID_secp256k1);
-    // EC_KEY_generate_key(ec_key);
-    // EVP_PKEY_assign_EC_KEY(private_key, ec_key);
-
-    // X.509 인증서 생성
-    //X509* x509_cert = X509_new();
-    //X509_set_version(x509_cert, 2); // X.509 버전 3으로 설정
-
-    // 시리얼 넘버 설정
-    //ASN1_INTEGER_set(X509_get_serialNumber(x509_cert), 1);
-
-    // 서브젝트 및 발급자 설정
-    // X509_NAME* name = X509_NAME_new();
-    // X509_NAME_add_entry_by_txt(name, "CN", MBSTRING_ASC, (const unsigned char *)"My Cert", -1, -1, 0);
-    // //X509_set_subject_name(x509_cert, name);
-    // X509_set_issuer_name(x509_cert, name);
-
-    BIO_write_filename(bio, (void*)"test.crt");
-    PEM_write_bio_X509(bio, cert);
-
-    // 인증서를 PEM 형식으로 출력
-    // BIO* bio = BIO_new(BIO_s_file());
-    // BIO_set_fp(bio, stdout, BIO_NOCLOSE);
-    // PEM_write_bio_X509(bio, x509_cert);
-
-    // 메모리 해제
-    // BIO_free_all(bio);
-    // X509_free(x509_cert);
-    // EVP_PKEY_free(private_key);
-    // X509_NAME_free(name);
 
     // OpenSSL 정리
     OPENSSL_cleanup();
