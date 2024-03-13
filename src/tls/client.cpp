@@ -22,6 +22,13 @@ int main() {
         exit(-1);
     }
 
+    STACK_OF(SSL_CIPHER)* ciphers = SSL_CTX_get_ciphers(ctx);
+    for (int j = 0; j < sk_SSL_CIPHER_num(ciphers); ++j)
+    {
+        const SSL_CIPHER* nval = sk_SSL_CIPHER_value(ciphers, j);
+        std::cout << SSL_CIPHER_get_name(nval) << std::endl;
+    }
+
     int clientFd = socket(AF_INET, SOCK_STREAM, 0);
     if(clientFd == -1) {
         std::cerr << "create socket failed" << std::endl;
@@ -48,7 +55,7 @@ int main() {
 
     result = SSL_connect(ssl);
     if(result == -1) {
-        std::cerr << "SSL_connect failed" << std::endl;
+        std::cerr << "SSL_connect failed : " << ERR_reason_error_string(ERR_get_error()) << std::endl;
         exit(-1);
     }
 

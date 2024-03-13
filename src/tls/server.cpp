@@ -49,6 +49,9 @@ int main() {
         exit(-1);
     }
 
+    SSL_CTX_set_max_proto_version(ctx, TLS1_3_VERSION);
+    SSL_CTX_set_min_proto_version(ctx, TLS1_3_VERSION);
+
     int serverFd = socket(AF_INET, SOCK_STREAM, 0);
     if(serverFd == -1) {
         std::cerr << "create socket failed" << std::endl;
@@ -76,6 +79,26 @@ int main() {
 
     std::cout << "Server Start (port:" << port << ")" << std::endl;
 
+    //creates a new SSL structure which is needed to hold the data for a TLS/SSL connection
+        SSL* ssl = SSL_new(ctx);
+        if(!ssl) {
+            std::cerr << "SSL_new failed" << std::endl;
+        exit(-1);
+        }
+
+        STACK_OF(SSL_CIPHER)* ciphers = SSL_CTX_get_ciphers(ctx);
+        for (int j = 0; j < sk_SSL_CIPHER_num(ciphers); ++j)
+        {
+            const SSL_CIPHER* nval = sk_SSL_CIPHER_value(ciphers, j);
+            std::cout << SSL_CIPHER_get_name(nval) << std::endl;
+        }
+        
+        result = SSL_set_ciphersuites(ssl, "TLS_AES_256_GCM_SHA384");
+        if(result == 0) {
+            std::cerr << "SSL_set_ciphersuites failed" << std::endl;
+        exit(-1);
+        }
+
     while(true) {
         struct sockaddr_in clientAddr;
         int len = sizeof(sockaddr_in);
@@ -84,14 +107,7 @@ int main() {
             std::cerr << "accept failed" << std::endl;
         exit(-1);
         }
-
-        //creates a new SSL structure which is needed to hold the data for a TLS/SSL connection
-        SSL* ssl = SSL_new(ctx);
-        if(!ssl) {
-            std::cerr << "SSL_new failed" << std::endl;
-        exit(-1);
-        }
-
+        
         result = SSL_set_fd(ssl, clientFd);
         if(result == 0) {
             std::cerr << "SSL_set_fd failed" << std::endl;
@@ -103,7 +119,7 @@ int main() {
         // tls handshake
         result = SSL_do_handshake((ssl));
         if(result <= 0) {
-            std::cerr << "SSL_do_handshake failed" << std::endl;
+            std::cerr << "SSL_do_handshake failed : " << ERR_reason_error_string(ERR_get_error()) << std::endl;
         exit(-1);
         }
 
