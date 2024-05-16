@@ -9,7 +9,11 @@
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 
-int main() {
+struct X509Data {
+    const char* signatureHash;
+};
+
+bool makeX509(X509Data* x509Data) {
     // OpenSSL 초기화
     OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CRYPTO_STRINGS | OPENSSL_INIT_ADD_ALL_CIPHERS | OPENSSL_INIT_ADD_ALL_DIGESTS, nullptr);
 
@@ -38,13 +42,34 @@ int main() {
     BIO_read_filename(bio, (void*)"rootCA.key");
     PEM_read_bio_PrivateKey(bio, &rootKey, NULL, NULL);
 
-    X509_sign(cert, rootKey, EVP_sha256());
+    const EVP_MD* message_digest;
+    if(x509Data->signatureHash == "SHA1") {
+        message_digest = EVP_sha1();
+    } else if(x509Data->signatureHash == "SHA256") {
+        message_digest = EVP_sha256();
+    } else if(x509Data->signatureHash == "SHA384") {
+        message_digest = EVP_sha384();
+    } else if(x509Data->signatureHash == "SHA512") {
+        message_digest = EVP_sha512();
+    }
+
+    X509_sign(cert, rootKey, message_digest);
 
     BIO_write_filename(bio, (void*)"test.crt");
+
+    int ret = X509_print_ex(bio, cert, 0, 0);
+
     PEM_write_bio_X509(bio, cert);
 
     // OpenSSL 정리
     OPENSSL_cleanup();
 
+    return true;
+}
+
+int main() {
+    X509Data x509Data;
+    x509Data.signatureHash       = "SHA512";
+    makeX509(&x509Data);
     return 0;
 }
