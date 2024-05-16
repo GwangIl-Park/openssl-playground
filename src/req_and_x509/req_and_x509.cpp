@@ -24,11 +24,11 @@ const EVP_MD* getMessageDigest(const char* signatureHash) {
     if(signatureHash == "SHA1") {
         return EVP_sha1();
     } else if(signatureHash == "SHA256") {
-        EVP_sha256();
+        return EVP_sha256();
     } else if(signatureHash == "SHA384") {
-        EVP_sha384();
+        return EVP_sha384();
     } else if(signatureHash == "SHA512") {
-        EVP_sha512();
+        return EVP_sha512();
     }
 }
 
@@ -44,6 +44,12 @@ X509_REQ* makeCSR(CertificateData* certificateData) {
 
 	X509_REQ_set_subject_name(csr, subject);
 	X509_NAME_free(subject);
+
+    STACK_OF(X509_EXTENSION*) exts = sk_X509_EXTENSION_new_null();
+    sk_X509_EXTENSION_push(exts, X509V3_EXT_conf_nid(NULL, NULL, NID_subject_alt_name, "DNS:example.com"));
+    sk_X509_EXTENSION_push(exts, X509V3_EXT_conf_nid(NULL, NULL, NID_subject_alt_name, "DNS:example2.com"));
+
+    X509_REQ_add_extensions(csr, exts);
 
     EVP_PKEY *pkey = nullptr;
 
