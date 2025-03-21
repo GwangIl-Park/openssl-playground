@@ -1,10 +1,10 @@
 CXX = g++
 CXXFLAGS = -std=c++11 -Wall
 
-all: x509
+all: main
 
-x509: x509.cpp 
-	$(CXX) $(CFLAGS) -o x509 x509.cpp -lssl -lcrypto -g
+main: main.cpp 
+	$(CXX) $(CFLAGS) -I/functions -o main main.cpp -lssl -lcrypto -g
 
 clean:
-	rm -f x509
+	rm -f main

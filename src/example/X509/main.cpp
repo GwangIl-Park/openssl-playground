@@ -3,19 +3,7 @@
 #include <openssl/x509v3.h>
 #include <iostream>
 
-X509* callX509New() {
-    X509* x509 = X509_new();
-    if(!x509) {
-        std::cerr << "x509 객체 생성 실패" << std::endl;
-        return NULL;
-    }
-
-    return x509;
-}
-
-void callX509Free(X509* x509) {
-    X509_free(x509);
-}
+#include <x509_basic.h>
 
 int setNotBeforeAfter(X509* x509) {
     ASN1_TIME *notBefore = ASN1_TIME_new();
@@ -196,8 +184,18 @@ void printSubjectAndIssuerName(X509* x509) {
     std::cout << "Subject Hash : " << subjectHash << std::endl;
 }
 
+void printNameIndexById(X509* x509) {
+    X509_NAME* subject = X509_get_subject_name(x509);
+    int idx = X509_NAME_get_index_by_NID(subject, NID_commonName, -1);
+    if (idx == -1) {
+        std::cerr << "commonName(CN) 필드를 찾을 수 없습니다.\n";
+        return;
+    }
+}
+
 int main() {
-    X509* x509 = callX509New();
+    X509BasicFunc* x509BasicFunc = new X509BasicFunc();
+    X509* x509 = x509BasicFunc->makeNewX509();
     if(!x509) {
         return 0;
     }
@@ -227,6 +225,6 @@ int main() {
     }
     printSubjectAndIssuerName(x509);
 
-    callX509Free(x509);
+    x509BasicFunc->freeX509(x509);
     return 0;
 }
