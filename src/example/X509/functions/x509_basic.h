@@ -3,7 +3,7 @@
 
 #include <openssl/x509.h>
 
-class X509BasicFunc
+class X509Basic
 {
 public:
     X509*   makeNewX509();

@@ -194,8 +194,8 @@ void printNameIndexById(X509* x509) {
 }
 
 int main() {
-    X509BasicFunc* x509BasicFunc = new X509BasicFunc();
-    X509* x509 = x509BasicFunc->makeNewX509();
+    X509Basic* x509Basic = new X509Basic();
+    X509* x509 = x509Basic->makeNewX509();
     if(!x509) {
         return 0;
     }
@@ -225,6 +225,6 @@ int main() {
     }
     printSubjectAndIssuerName(x509);
 
-    x509BasicFunc->freeX509(x509);
+    x509Basic->freeX509(x509);
     return 0;
 }
